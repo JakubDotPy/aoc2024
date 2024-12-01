@@ -1,11 +1,11 @@
-advent of code {{ year }}
+advent of code 2024
 ===================
 
-https://adventofcode.com/{{ year }}
+https://adventofcode.com/2024
 
 ### about
 
-https://adventofcode.com/2022/about
+https://adventofcode.com/2024/about
 
 Advent of Code is an Advent calendar of small programming puzzles for a variety
 of skill sets and skill levels that can be solved in any programming language you like.

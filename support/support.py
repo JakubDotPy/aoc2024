@@ -1,8 +1,9 @@
+"""Support functions for Advent of Code solutions."""
+
 from __future__ import annotations
 
 import contextlib
 import enum
-import os
 import re
 import shutil
 import sys
@@ -10,9 +11,12 @@ import time
 import urllib.error
 import urllib.request
 from pathlib import Path
-from typing import Generator
+from typing import TYPE_CHECKING
 
-HERE = os.path.dirname(os.path.abspath(__file__))
+if TYPE_CHECKING:
+    from collections.abc import Generator
+
+ENV_FILE = Path(__file__).parent.parent.parent / '.env'
 
 
 @contextlib.contextmanager
@@ -33,7 +37,7 @@ def timing(name: str = '') -> Generator[None, None, None]:
 
 
 def _get_cookie_headers() -> dict[str, str]:
-    with open(os.path.join(HERE, '../.env')) as f:
+    with Path.open(ENV_FILE) as f:
         contents = f.read().strip()
     return {'Cookie': contents}
 
@@ -45,20 +49,21 @@ def get_input(year: int, day: int) -> str:
 
 
 def get_year_day() -> tuple[int, int]:
-    cwd = os.getcwd()
-    day_s = os.path.basename(cwd)
-    year_s = os.path.basename(os.path.dirname(cwd))
+    cwd = Path.cwd()
+    day_s = cwd.name
+    year_s = cwd.parent.name
 
     if not day_s.startswith('day') or not year_s.startswith('aoc'):
-        raise AssertionError(f'unexpected working dir: {cwd}')
+        err_msg = f'unexpected working dir: {cwd}'
+        raise AssertionError(err_msg)
 
-    return int(year_s[len('aoc'):]), int(day_s[len('day'):])
+    return int(year_s[len('aoc') :]), int(day_s[len('day') :])
 
 
 def download_input() -> int:
     year, day = get_year_day()
 
-    for i in range(5):
+    for _ in range(5):
         try:
             s = get_input(year, day)
         except urllib.error.URLError as e:
@@ -112,7 +117,7 @@ def new_day() -> None:
     old = r'@pytest.mark.template'
     new = r'# @pytest.mark.solved'
     pattern = re.compile(old)
-    with open(new_path / 'part1.py', 'r+') as f:
+    with Path.open(new_path / 'part1.py', 'r+') as f:
         contents = f.read()
         contents = pattern.sub(new, contents)
         f.seek(0)
@@ -122,18 +127,17 @@ def new_day() -> None:
     print('Editing run configuration.')
     for file in Path('.run').iterdir():
         print(f' - editing {file}')
-        with open(file, 'r') as f:
+        with Path.open(file) as f:
             contents = f.read()
-            new_contents = re.sub(
-                fr'{last_day}', fr'{new_day_folder_name}', contents
-            )
-        with open(file, 'w') as f:
+            new_contents = re.sub(rf'{last_day}', rf'{new_day_folder_name}', contents)
+        with Path.open(file, 'w') as f:
             f.write(new_contents)
 
     print(' Finished '.center(50, '-'))
 
 
 # --- helper functions and classes
+
 
 def adjacent_4(x: int, y: int) -> Generator[tuple[int, int], None, None]:
     yield x, y - 1
@@ -181,10 +185,7 @@ def format_coords_hash(coords: set[tuple[int, int]]) -> str:
     min_y = min(y for _, y in coords)
     max_y = max(y for _, y in coords)
     return '\n'.join(
-        ''.join(
-            '#' if (x, y) in coords else ' '
-            for x in range(min_x, max_x + 1)
-        )
+        ''.join('#' if (x, y) in coords else ' ' for x in range(min_x, max_x + 1))
         for y in range(min_y, max_y + 1)
     )
 
