@@ -1,6 +1,7 @@
 """Day 1: Historian Hysteria - part 2"""
 
 import argparse
+import collections
 import itertools
 from functools import cache
 from pathlib import Path
@@ -23,17 +24,12 @@ INPUT_S = """\
 EXPECTED = 31
 
 
-@cache
-def get_similarity(num: int, right_list: tuple[int, ...]) -> int:
-    """Take a number and multipli its value with num of occurrences in right list."""
-    return num * right_list.count(num)
-
-
 def compute(s: str) -> int:
     """Compute the solution to the problem."""
     # separate the two columns into left and right
     left, right = zip(*itertools.batched(map(int, s.split()), 2), strict=False)
-    return sum(get_similarity(num, right) for num in left)
+    right = collections.Counter(right)
+    return sum(num * right[num] for num in left)
 
 
 @pytest.mark.solved
