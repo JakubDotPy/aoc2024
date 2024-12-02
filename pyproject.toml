@@ -75,4 +75,4 @@ inline-quotes = "single"
 ]
 
 [tool.uv.sources]
-support = { path = "support", editable = true }
+support = { path = "support-src", editable = true }

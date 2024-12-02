@@ -22,7 +22,7 @@ dev = [
 requires-dist = [
     { name = "mypy", specifier = ">=1.13.0" },
     { name = "pytest", specifier = ">=8.3.4" },
-    { name = "support", editable = "support" },
+    { name = "support", editable = "support-src" },
 ]
 
 [package.metadata.requires-dev]
@@ -225,7 +225,7 @@ wheels = [
 [[package]]
 name = "support"
 version = "0.1.0"
-source = { editable = "support" }
+source = { editable = "support-src" }
 
 [[package]]
 name = "typing-extensions"
