@@ -5,7 +5,8 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "pytest",
+    "mypy>=1.13.0",
+    "pytest>=8.3.4",
     "support",
 ]
 
@@ -17,6 +18,15 @@ dev = [
 ]
 
 # --- tools configuration ---
+
+[tool.pytest.ini_options]
+python_files = "part*.py"
+markers = [
+    "solved: mark test as solved",
+    "template: only a template"
+]
+addopts = "-m 'not (solved or template)'"
+
 
 [tool.mypy]
 explicit_package_bases = true
@@ -35,7 +45,6 @@ select = ["ALL"]
 ignore = [
     "FIX", # ignore TODOs
     "TD",  # ignore TODOs syntax
-    "ANN101",  # Missing type annotation for `self` in method, deprecated
     "D104",  # Missing docstring in public package (__init__.py)
     "D203",  # 1 blank line required before class docstring, incompatible with D211
     "D213",  # multi-line-summary-second-line D212
@@ -43,20 +52,25 @@ ignore = [
     "T201",  # allow prints
 
     # ruff warning, don't format these, conflicts with linter
-#    "COM812", # missing-trailing-comma
-#    "ISC001", # single-line-implicit-string-concatenation
+    "COM812", # missing-trailing-comma
+    "ISC001", # single-line-implicit-string-concatenation
 ]
 
 [tool.ruff.lint.isort]
 force-single-line = true  # Ensures each import is on a separate line
 
+[tool.ruff.lint.flake8-quotes]
+inline-quotes = "single"
+
 [tool.ruff.lint.per-file-ignores]
 # Ignore all directories named `tests`.
 "support/support.py" = [
-    "D100",  # don't check docstrings in tests
+    "D100",  # don't check docstrings
+    "D101",  # ...
     "D102",  # ...
     "D103",  # ...
     "D105",  # ...
+    "D107",  # ...
     "S101",  # allow asserts in tests
 ]
 

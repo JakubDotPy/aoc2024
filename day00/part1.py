@@ -1,3 +1,5 @@
+"""AOC template file."""
+
 import argparse
 from pathlib import Path
 
@@ -14,7 +16,7 @@ INPUT_S = """\
 EXPECTED = 1
 
 
-def compute(s: str) -> int:
+def compute(s: str) -> int:  # noqa: ARG001
     """Compute the solution for given problem."""
     # TODO: implement solution here!
 

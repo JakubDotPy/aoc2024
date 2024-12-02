@@ -1,3 +1,5 @@
+"""Day 1: Historian Hysteria - part 1"""
+
 import argparse
 import itertools
 from pathlib import Path
@@ -21,9 +23,13 @@ EXPECTED = 11
 
 
 def compute(s: str) -> int:
+    """Compute the solution to the problem."""
     # separate the two columns into left and right
     left, right = zip(*itertools.batched(map(int, s.split()), 2), strict=False)
-    return sum(abs(l - r) for l, r in zip(sorted(left), sorted(right), strict=False))
+    return sum(
+        abs(left_num - right_num)
+        for left_num, right_num in zip(sorted(left), sorted(right), strict=False)
+    )
 
 
 @pytest.mark.solved
