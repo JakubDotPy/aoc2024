@@ -154,6 +154,14 @@ def adjacent_8(x: int, y: int) -> Generator[tuple[int, int]]:
             yield x + x_d, y + y_d
 
 
+def parse_coords_char(s: str) -> dict[tuple[int, int], str]:
+    coords = {}
+    for y, line in enumerate(s.splitlines()):
+        for x, c in enumerate(line):
+            coords[(x, y)] = c
+    return coords
+
+
 def parse_coords_int(s: str) -> dict[tuple[int, int], int]:
     coords = {}
     for y, line in enumerate(s.splitlines()):
