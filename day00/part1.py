@@ -30,6 +30,7 @@ def compute(s: str) -> int:  # noqa: ARG001
 )
 def test(input_s: str, expected: int) -> None:
     """Test the compute function."""
+    print()  # newline for better readability
     assert compute(input_s) == expected
 
 
