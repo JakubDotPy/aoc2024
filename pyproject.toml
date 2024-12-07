@@ -26,7 +26,7 @@ markers = [
     "solved: mark test as solved",
     "template: only a template"
 ]
-addopts = "-m 'not (solved or template)'"
+addopts = "-m 'not (solved or template)' -s"
 
 
 [tool.mypy]

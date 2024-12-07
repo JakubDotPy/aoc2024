@@ -4,12 +4,16 @@ from __future__ import annotations
 
 import contextlib
 import enum
+import io
 import re
 import shutil
 import sys
 import time
 import urllib.error
 import urllib.request
+from dataclasses import dataclass
+from dataclasses import field
+from functools import total_ordering
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -202,6 +206,10 @@ def print_coords_hash(coords: set[tuple[int, int]]) -> None:
     print(format_coords_hash(coords))
 
 
+class OutOfBounds(Exception):
+    pass
+
+
 class Direction4(enum.Enum):
     UP = (0, -1)
     RIGHT = (1, 0)
@@ -232,3 +240,135 @@ class Direction4(enum.Enum):
 
     def apply(self, x: int, y: int, *, n: int = 1) -> tuple[int, int]:
         return self.x * n + x, self.y * n + y
+
+    @property
+    def chr(self) -> str:
+        chr_map = {
+            Direction4.UP: '^',
+            Direction4.RIGHT: '>',
+            Direction4.DOWN: 'v',
+            Direction4.LEFT: '<',
+        }
+        return chr_map[self]
+
+
+@total_ordering
+@dataclass
+class Pointer:
+    x: int = 0
+    y: int = 0
+    direction: Direction4 = None
+    grid: 'Grid' = field(init=False, repr=False)
+
+    def move(self, n: int = 1) -> Pointer:
+        if not self.direction:
+            raise ValueError('pointer has no direction')
+        dx, dy = self.direction.value
+        self.x += n * dx
+        self.y += n * dy
+        return self
+
+    def look(self, direction: Direction4 = None, n: int = 1) -> str:
+        if not direction:
+            direction = self.direction
+
+        dx, dy = direction.value
+        x = self.x + n * dx
+        y = self.y + n * dy
+        try:
+            value = self.grid[(x, y)]
+        except KeyError:
+            raise OutOfBounds()
+        else:
+            return value
+
+    @property
+    def coords(self):
+        return self.x, self.y
+
+    @property
+    def value(self) -> str | None:
+        return self.grid.get((self.x, self.y), None)
+
+    def __add__(self, other: Pointer) -> Pointer:
+        return Pointer(self.x + other.x, self.y + other.y)
+
+    def __sub__(self, other: Pointer) -> Pointer:
+        return Pointer(self.x - other.x, self.y - other.y)
+
+    def __lt__(self, other: Pointer) -> bool:
+        return self.x < other.x and self.y < other.y
+
+    def __eq__(self, other: Pointer) -> bool:
+        same_coords = self.x == other.x and self.y == other.y
+        same_direction = self.direction == other.direction
+        return same_coords and same_direction
+
+    def __hash__(self):
+        if not self.direction:
+            return hash(self.coords + (0, 0))
+        return hash(self.coords + self.direction.value)
+
+    @staticmethod
+    def adjacent_4(x: int, y: int) -> Generator[tuple[int, int], None, None]:
+        yield x, y - 1
+        yield x + 1, y
+        yield x, y + 1
+        yield x - 1, y
+
+    @staticmethod
+    def adjacent_8(x: int, y: int) -> Generator[tuple[int, int], None, None]:
+        for y_d in (-1, 0, 1):
+            for x_d in (-1, 0, 1):
+                if y_d == x_d == 0:
+                    continue
+                yield x + x_d, y + y_d
+
+    def __str__(self) -> str:
+        dir_str = f', direction={self.direction.chr!r}' if self.direction else ''
+        return f'Pointer(x={self.x}, y={self.y}{dir_str})'
+
+    __repr__ = __str__
+
+
+@dataclass
+class Grid(dict):
+    width: int = field(default=0, init=False)
+    height: int = field(default=0, init=False)
+    pointers: set[Pointer] = field(default_factory=set, init=False)
+
+    def add_pointers(self, *pointers: Pointer) -> None:
+        for pointer in pointers:
+            pointer.grid = self
+            self.pointers.add(pointer)
+
+    @property
+    def pointer(self):
+        return min(self.pointers)
+
+    @classmethod
+    def from_string(cls, s: str, map_fn: callable = str) -> Grid:
+        grid = cls()
+        for y, line in enumerate(s.splitlines()):
+            for x, char in enumerate(line):
+                grid[(x, y)] = map_fn(char)
+        grid.width, grid.height = x, y
+        return grid
+
+    @staticmethod
+    def parse_coords_hash(s: str) -> set[tuple[int, int]]:
+        """use for walls etc."""
+        coords = set()
+        for y, line in enumerate(s.splitlines()):
+            for x, c in enumerate(line):
+                if c == '#':
+                    coords.add((x, y))
+        return coords
+
+    def __str__(self) -> str:
+        with io.StringIO() as s_buff:
+            for y in range(self.height + 1):
+                for x in range(self.width + 1):
+                    print(self[(x, y)], end='', file=s_buff)
+                print(file=s_buff)
+            return s_buff.getvalue()
