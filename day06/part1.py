@@ -38,11 +38,10 @@ def compute(s: str) -> int:  # noqa: ARG001
     while True:
         try:
             main_path.add(pointer.coords)
-            if pointer.look() == '#':
+            while pointer.look() == '#':
                 pointer.direction = pointer.direction.cw
             pointer.move()
         except support.OutOfBounds:
-            print(grid)
             return len(main_path)
 
 

@@ -133,7 +133,7 @@ def new_day() -> None:
         print(f' - editing {file}')
         with Path.open(file) as f:
             contents = f.read()
-            new_contents = re.sub(rf'{last_day}', rf'{new_day_folder_name}', contents)
+            new_contents = re.sub(r'day\d\d', rf'{new_day_folder_name}', contents)
         with Path.open(file, 'w') as f:
             f.write(new_contents)
 
@@ -196,8 +196,12 @@ def format_coords_hash(coords: set[tuple[int, int]]) -> str:
     max_x = max(x for x, _ in coords)
     min_y = min(y for _, y in coords)
     max_y = max(y for _, y in coords)
+
+    min_x = min_y = 0
+    max_x = max_y = 9
+
     return '\n'.join(
-        ''.join('#' if (x, y) in coords else ' ' for x in range(min_x, max_x + 1))
+        ''.join('#' if (x, y) in coords else '.' for x in range(min_x, max_x + 1))
         for y in range(min_y, max_y + 1)
     )
 
@@ -286,9 +290,17 @@ class Pointer:
     def coords(self):
         return self.x, self.y
 
+    def place_at(self, x, y):
+        self.x = x
+        self.y = y
+
     @property
     def value(self) -> str | None:
         return self.grid.get((self.x, self.y), None)
+
+    @property
+    def state(self):
+        return self.coords, self.direction, self.value
 
     def __add__(self, other: Pointer) -> Pointer:
         return Pointer(self.x + other.x, self.y + other.y)
