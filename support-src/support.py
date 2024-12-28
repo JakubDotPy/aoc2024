@@ -174,16 +174,6 @@ def new_day() -> None:
         f.seek(0)
         f.write(contents)
 
-    # edit run configurations
-    print('Editing run configuration.')
-    for file in Path('.run').iterdir():
-        print(f' - editing {file}')
-        with Path.open(file) as f:
-            contents = f.read()
-            new_contents = re.sub(r'day\d\d', rf'{new_day_folder_name}', contents)
-        with Path.open(file, 'w') as f:
-            f.write(new_contents)
-
     print(' Finished '.center(50, '-'))
 
 

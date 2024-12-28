@@ -9,6 +9,7 @@ dependencies = [
     { name = "matplotlib" },
     { name = "mypy" },
     { name = "networkx" },
+    { name = "numpy" },
     { name = "pytest" },
     { name = "support" },
 ]
@@ -25,6 +26,7 @@ requires-dist = [
     { name = "matplotlib", specifier = ">=3.10.0" },
     { name = "mypy", specifier = ">=1.13.0" },
     { name = "networkx", specifier = ">=3.4.2" },
+    { name = "numpy", specifier = ">=2.2.1" },
     { name = "pytest", specifier = ">=8.3.4" },
     { name = "support", editable = "support-src" },
 ]
