@@ -234,9 +234,6 @@ def format_coords_hash(coords: set[tuple[int, int]]) -> str:
     min_y = min(y for _, y in coords)
     max_y = max(y for _, y in coords)
 
-    min_x = min_y = 0
-    max_x = max_y = 9
-
     return '\n'.join(
         ''.join('#' if (x, y) in coords else '.' for x in range(min_x, max_x + 1))
         for y in range(min_y, max_y + 1)
