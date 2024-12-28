@@ -84,7 +84,7 @@ def compute(s: str) -> int:  # noqa: ARG001
     return result
 
 
-# @pytest.mark.solved
+@pytest.mark.solved
 @pytest.mark.parametrize(
     ('input_s', 'expected'),
     [
