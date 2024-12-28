@@ -8,3 +8,4 @@ dependencies = []
 [project.scripts]
 download-input = "support:download_input"
 new-day = "support:new_day"
+submit = "support:submit_solution"
