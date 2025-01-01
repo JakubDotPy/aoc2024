@@ -299,6 +299,9 @@ class Direction4(enum.Enum):
         }
         return chr_map[self]
 
+    def __lt__(self, other):
+        return self.name < other.name
+
 
 @total_ordering
 @dataclass
