@@ -195,29 +195,29 @@ def adjacent_8(x: int, y: int) -> Generator[tuple[int, int]]:
             yield x + x_d, y + y_d
 
 
-def parse_coords_char(s: str) -> dict[tuple[int, int], str]:
-    coords = {}
-    for y, line in enumerate(s.splitlines()):
-        for x, c in enumerate(line):
-            coords[(x, y)] = c
-    return coords
+def parse_coords(s: str) -> dict[tuple[int, int], str]:
+    return {
+        (x, y): c
+        for y, line in enumerate(s.splitlines())
+        for x, c in enumerate(line)
+    }
 
 
 def parse_coords_int(s: str) -> dict[tuple[int, int], int]:
-    coords = {}
-    for y, line in enumerate(s.splitlines()):
-        for x, c in enumerate(line):
-            coords[(x, y)] = int(c)
-    return coords
+    return {
+        (x, y): int(c)
+        for y, line in enumerate(s.splitlines())
+        for x, c in enumerate(line)
+    }
 
 
-def parse_coords_hash(s: str) -> set[tuple[int, int]]:
-    coords = set()
-    for y, line in enumerate(s.splitlines()):
-        for x, c in enumerate(line):
-            if c == '#':
-                coords.add((x, y))
-    return coords
+def parse_coords_set(s: str, _char: str = '#') -> set[tuple[int, int]]:
+    return {
+        (x, y)
+        for y, line in enumerate(s.splitlines())
+        for x, c in enumerate(line)
+        if c == _char
+    }
 
 
 def parse_numbers_split(s: str) -> list[int]:
@@ -256,6 +256,16 @@ class Direction4(enum.Enum):
 
     def __init__(self, x: int, y: int) -> None:
         self.x, self.y = x, y
+
+    @classmethod
+    def from_chr(cls, c: str) -> Direction4:
+        chr_map = {
+            '^': cls.UP,
+            '>': cls.RIGHT,
+            'v': cls.DOWN,
+            '<': cls.LEFT,
+        }
+        return chr_map[c]
 
     @property
     def _vals(self) -> tuple[Direction4, ...]:
@@ -391,6 +401,11 @@ class Grid(dict):
     @property
     def pointer(self):
         return min(self.pointers)
+
+    def move(self, coords, direction, n=1):
+        """swap places with what was in the direction"""
+        new_coords = direction.apply(*coords, n=n)
+        self[coords], self[new_coords] = self[new_coords], self[coords]
 
     @classmethod
     def from_string(cls, s: str, map_fn: callable = str) -> Grid:
