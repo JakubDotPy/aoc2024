@@ -3,6 +3,8 @@ advent of code 2024
 
 https://adventofcode.com/2024
 
+![Advent of Code Screenshot](screenshots/aoc-screenshot.png)
+
 ### about
 
 https://adventofcode.com/2024/about
