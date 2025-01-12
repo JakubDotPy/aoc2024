@@ -1,5 +1,6 @@
 import os
-
+from pathlib import Path
+from typing import Tuple
 from PIL import Image
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -8,7 +9,15 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 
-def setup_driver(cookie_value):
+def setup_driver(cookie_value: str) -> webdriver.Chrome:
+    """Set up a headless Chrome WebDriver and authenticate with a session cookie.
+
+    Args:
+        cookie_value (str): The session cookie value for authentication.
+
+    Returns:
+        webdriver.Chrome: Configured Chrome WebDriver instance.
+    """
     options = Options()
     options.add_argument('--headless=new')
     options.add_argument('--window-size=1920,1080')
@@ -20,13 +29,32 @@ def setup_driver(cookie_value):
     return driver
 
 
-def crop_image(input_path, output_path, crop_box=(0, 0, 640, 621)):
+def crop_image(
+    input_path: str, output_path: str, crop_box: Tuple[int, int, int, int] = (0, 0, 640, 621)
+) -> None:
+    """Crop an image to the specified dimensions and save it to the output path.
+
+    Args:
+        input_path (str): Path to the input image file.
+        output_path (str): Path to save the cropped image.
+        crop_box (Tuple[int, int, int, int], optional):
+            The cropping box defined as (left, upper, right, lower).
+            Defaults to (0, 0, 640, 621).
+    """
     with Image.open(input_path) as img:
         cropped = img.crop(crop_box)
         cropped.save(output_path)
 
 
-def take_screenshot(driver, url, selector, output_name):
+def take_screenshot(driver: webdriver.Chrome, url: str, selector: str, output_name: str) -> None:
+    """Capture a screenshot of a web element specified by a CSS selector and crop it.
+
+    Args:
+        driver (webdriver.Chrome): The WebDriver instance used to navigate and take screenshots.
+        url (str): The URL of the web page to capture.
+        selector (str): The CSS selector of the element to capture.
+        output_name (str): Path to save the screenshot.
+    """
     driver.get(url)
     element = WebDriverWait(driver, 10).until(
         EC.presence_of_element_located((By.CSS_SELECTOR, selector))
@@ -35,14 +63,32 @@ def take_screenshot(driver, url, selector, output_name):
     crop_image(output_name, output_name)
 
 
-def main():
+def get_year() -> str:
+    """Determine the year based on the parent folder name.
+
+    Returns:
+        str: The year extracted from the folder name.
+    """
+    folder_name = Path(__file__).parents[2].name
+    return folder_name.split('aoc')[1]
+
+
+def main() -> None:
+    """Main entry point for the script.
+
+    Sets up the environment, captures a screenshot, and ensures proper cleanup of resources.
+    """
     os.makedirs('screenshots', exist_ok=True)
     cookie = os.getenv('COOKIE')
+    if not cookie:
+        raise ValueError('COOKIE environment variable is not set.')
+
     driver = setup_driver(cookie)
+    year = get_year()
     try:
         take_screenshot(
             driver,
-            'https://adventofcode.com/2024',
+            f'https://adventofcode.com/{year}',
             'body > main > pre',
             'screenshots/aoc-screenshot.png',
         )

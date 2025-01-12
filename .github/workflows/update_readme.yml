@@ -38,12 +38,6 @@ jobs:
         run: |
           uv run .github/scripts/take_screenshot.py
 
-      - name: Upload screenshot artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: webpage-screenshots
-          path: screenshots/
-
       - name: Commit and Push Changes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
